@@ -56,3 +56,40 @@ resource "aws_subnet" "Mysubnet-4" {
     Name = "Mysubnet-4"
   }
 }
+
+# create Internet Gateway
+
+resource "aws_internet_gateway" "Demo-IG" {
+  vpc_id = aws_vpc.Demo-vpc.id
+
+  tags = {
+    Name = "Demo-IG"
+  }
+}
+
+# create Route Table
+
+resource "aws_route_table" "Demo-Public-RT" {
+  vpc_id = aws_vpc.Demo-vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.Demo-IG.id
+  }
+
+  tags = {
+    Name = "Demo-Public-RT"
+  }
+}
+
+# Route Table Association
+
+resource "aws_route_table_association" "Demo-Public-RT-Association-1" {
+  subnet_id      = aws_subnet.Mysubnet-1.id
+  route_table_id = aws_route_table.Demo-Public-RT.id
+}
+
+resource "aws_route_table_association" "Demo-Public-RT-Association-2" {
+  subnet_id      = aws_subnet.Mysubnet-2.id
+  route_table_id = aws_route_table.Demo-Public-RT.id
+}

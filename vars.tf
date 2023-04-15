@@ -20,3 +20,8 @@ variable EC2-key-pair {
    type    = string
    default = "linux-os-key"
 }
+
+variable EC2-private-key-pair {
+   type    = string
+   default = "bastion-host-private-key"
+}
