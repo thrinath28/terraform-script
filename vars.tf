@@ -18,5 +18,5 @@ variable EC2-instance-type {
 
 variable EC2-key-pair {
    type    = string
-   default = "linux-os-key.pem"
+   default = "linux-os-key"
 }
