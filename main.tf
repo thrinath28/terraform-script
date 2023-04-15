@@ -93,3 +93,55 @@ resource "aws_route_table_association" "Demo-Public-RT-Association-2" {
   subnet_id      = aws_subnet.Mysubnet-2.id
   route_table_id = aws_route_table.Demo-Public-RT.id
 }
+
+# creating the Target group for LB
+
+resource "aws_lb_target_group" "Demo-LB-target-group" {
+  name     = "Demo-LB-target-group"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.Demo-vpc.id
+}
+
+# creating LB target group Attachment
+
+resource "aws_lb_target_group_attachment" "Demo-LB-target-group-Attachment-1" {
+  target_group_arn = aws_lb_target_group.Demo-LB-target-group.arn
+  target_id        = aws_instance.wordpress.id
+  port             = 80
+}
+
+resource "aws_lb_target_group_attachment" "Demo-LB-target-group-Attachment-2" {
+  target_group_arn = aws_lb_target_group.Demo-LB-target-group.arn
+  target_id        = aws_instance.bastion-host.id
+  port             = 80
+}
+
+# creating the Load Balancer
+
+resource "aws_lb" "Demo-LB" {
+  name               = "Demo-LB"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.sg_Load-balancer.id]
+  subnets            = [aws_subnet.Mysubnet-1.id,aws_subnet.Mysubnet-2.id]
+
+  enable_deletion_protection = true
+
+  tags = {
+    Environment = "production"
+  }
+}
+
+# creating the listener
+
+resource "aws_lb_listener" "Demo-LB-Listener" {
+  load_balancer_arn = aws_lb.Demo-LB.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.Demo-LB-target-group.arn
+  }
+}
